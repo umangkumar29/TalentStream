@@ -1,0 +1,219 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap');
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* ───────────── KPIT Brand Theme (Dark Mode) ───────────── */
+:root,
+.dark {
+  --talentstream-bg:                #0f172a; /* Soft Navy-Dark instead of pure black */
+  --talentstream-surface:           #1e293b;
+  --talentstream-surface-low:       #334155;
+  --talentstream-surface-high:      #475569;
+  --talentstream-surface-highest:   #64748b;
+  --talentstream-primary:           #4f46e5; /* Indigo */
+  --talentstream-primary-container: #3730a3;
+  --talentstream-tertiary:          #f59e0b; /* Amber */
+  --talentstream-tertiary-container:#b45309;
+  --talentstream-error:             #ef4444;
+  --talentstream-on-surface:        #f8fafc;
+  --talentstream-on-surface-variant:#94a3b8;
+  --talentstream-outline:           #334155;
+  --talentstream-outline-variant:   #1e293b;
+
+  /* Component tokens */
+  --card-bg:        rgba(30, 41, 59, 0.7);
+  --card-border:    rgba(255, 255, 255, 0.05);
+  --input-bg:       #0f172a;
+  --input-border:   rgba(255, 255, 255, 0.1);
+  --text-primary:   #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+}
+
+/* ───────────── KPIT Brand Theme (Light Mode) ───────────── */
+.light {
+  --talentstream-bg:                #f8fafc;
+  --talentstream-surface:           #ffffff;
+  --talentstream-surface-low:       #f1f5f9;
+  --talentstream-surface-high:      #e2e8f0;
+  --talentstream-surface-highest:   #cbd5e1;
+  --talentstream-primary:           #4f46e5; /* Indigo */
+  --talentstream-primary-container: #e0e7ff;
+  --talentstream-tertiary:          #f59e0b; /* Amber */
+  --talentstream-tertiary-container:#fef3c7;
+  --talentstream-error:             #dc2626;
+  --talentstream-on-surface:        #0f172a;
+  --talentstream-on-surface-variant:#475569;
+  --talentstream-outline:           #cbd5e1;
+  --talentstream-outline-variant:   #e2e8f0;
+
+  /* Component tokens */
+  --card-bg:        #ffffff;
+  --card-border:    #e2e8f0;
+  --input-bg:       #ffffff;
+  --input-border:   #cbd5e1;
+  --text-primary:   #0f172a;
+  --text-secondary: #475569;
+  --text-muted:     #94a3b8;
+}
+
+@layer base {
+  html {
+    background-color: var(--talentstream-bg);
+    color: var(--talentstream-on-surface);
+  }
+
+  body {
+    @apply font-inter antialiased transition-colors duration-300;
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--talentstream-bg);
+    color: var(--talentstream-on-surface);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-manrope tracking-tight;
+  }
+}
+
+/* ─── Light Mode: Global Overrides for hardcoded dark colors ─── */
+.light [class*="bg-[#0A0E17]"],
+.light [class*="bg-[#0a0e17]"] {
+  background-color: var(--input-bg) !important;
+}
+
+.light [class*="bg-[#151B28]"],
+.light [class*="bg-[#151b28]"] {
+  background-color: #ffffff !important;
+}
+
+.light [class*="bg-[#0D1117]"],
+.light [class*="bg-[#0d1117]"] {
+  background-color: #f8faff !important;
+}
+
+.light [class*="bg-[#1E2533]"],
+.light [class*="bg-[#1e2533]"] {
+  background-color: #eef2ff !important;
+}
+
+.light [class*="border-white\\/5"],
+.light [class*="border-white/5"] {
+  border-color: #e2e8f0 !important;
+}
+
+.light [class*="border-\\[\\#1E2533\\]"],
+.light [class*="border-[#1E2533]"] {
+  border-color: #e2e8f0 !important;
+}
+
+.light [class*="text-white"]:not(.light [class*="bg-talentstream-primary"] *):not(button) {
+  color: #0f172a !important;
+}
+
+.light [class*="text-\\[\\#64748B\\]"],
+.light [class*="text-[#64748B]"],
+.light [class*="text-\\[\\#94A3B8\\]"],
+.light [class*="text-[#94A3B8]"],
+.light [class*="text-\\[\\#64748b\\]"],
+.light [class*="text-[#64748b]"] {
+  color: #475569 !important;
+}
+
+/* Force light text on primary colored backgrounds */
+.light [class*="bg-talentstream-primary"] {
+  color: #ffffff !important;
+}
+
+.light .bg-indigo-600, .light .bg-indigo-500 {
+  color: #ffffff !important;
+}
+
+.light .bg-emerald-600, .light .bg-emerald-500 {
+  color: #ffffff !important;
+}
+
+/* ─── Light Mode: Sidebar ─── */
+.light aside {
+  background-color: #ffffff !important;
+  border-right-color: #e2e8f0 !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Light Mode: Input fields ─── */
+.light input,
+.light textarea {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: #0f172a !important;
+}
+
+.light input::placeholder,
+.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* ─── Light Mode: Cards that use glass-card ─── */
+.light .glass-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+.light .interactive-card:hover {
+  background-color: #f8faff !important;
+}
+
+@layer components {
+  .glass-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    @apply backdrop-blur-md rounded-2xl shadow-lg;
+  }
+
+  .interactive-card {
+    @apply glass-card transition-all duration-300;
+  }
+
+  .btn-aura {
+    background-color: color-mix(in srgb, var(--talentstream-primary) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--talentstream-primary) 35%, transparent);
+    color: var(--talentstream-primary);
+    @apply font-manrope font-bold uppercase tracking-wider rounded-xl transition-all duration-300 relative overflow-hidden px-6 py-2.5;
+  }
+
+  .btn-aura:hover {
+    background-color: color-mix(in srgb, var(--talentstream-primary) 22%, transparent);
+  }
+
+  .input-talentstream {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+    @apply w-full px-5 py-3 rounded-xl outline-none transition-all text-sm;
+  }
+
+  .input-talentstream::placeholder {
+    color: var(--text-muted);
+  }
+
+  .input-talentstream:focus {
+    border-color: color-mix(in srgb, var(--talentstream-primary) 50%, transparent);
+  }
+
+  .sidebar-link-active::before {
+    background-color: var(--talentstream-primary);
+    @apply content-[''] absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full;
+  }
+}
+
+::-webkit-scrollbar {
+  @apply w-1;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: color-mix(in srgb, var(--talentstream-on-surface) 15%, transparent);
+}
