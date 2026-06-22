@@ -97,7 +97,13 @@ def get_top_candidates(db: Session, job_id: str, excluded_candidate_ids: list[st
         params["exclude_ids"] = "{" + ",".join(excluded_candidate_ids) + "}"
         print(f"[W1] Re-Trigger mode: excluding {len(excluded_candidate_ids)} already-evaluated candidates.")
 
-    # pgvector HNSW cosine search with hard filters
+    # Force exact sequential scan for 100% recall at current scale (< 50k candidates).
+    # HNSW is ANN (approximate) — at 700-1000 resumes, exact scan is only ~10ms slower
+    # but guarantees NO candidate is ever missed by the approximation algorithm.
+    # When the pool grows beyond ~50k resumes, remove this line and tune hnsw.ef_search instead.
+    db.execute(text("SET LOCAL enable_indexscan = off"))
+
+    # Exact cosine similarity search across ALL bench candidates
     # <=> = cosine distance (lower = more similar), 1 - distance = cosine similarity score
     rows = db.execute(
         text(f"""
@@ -153,8 +159,8 @@ def get_top_candidates(db: Session, job_id: str, excluded_candidate_ids: list[st
         
     candidate_meta.sort(key=lambda x: x["similarity_score"], reverse=True)
 
-    # Take Top K * 2 for the LLM evaluation
-    final_limit = top_k * 2
+    # Take exactly top_k — BGE re-ranker narrows the pool accurately before LLM
+    final_limit = top_k
     best_candidates = candidate_meta[:final_limit]
 
     print(f"[W1] BGE Reranking complete. Forwarding {len(best_candidates)} to LLM worker.")
