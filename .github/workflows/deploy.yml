@@ -3,10 +3,11 @@ name: TalentStream Auto-Deployment 🚀
 on:
   push:
     branches:
-      - main # Triggers the workflow when code is pushed to the main branch
+      - main
 
+# Force workflow runner to use future-proof node versions
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy:
@@ -14,11 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out code from GitHub
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 2: Establish secure SSH tunnel to VM and trigger rebuild
       - name: Execute Remote SSH Deployment Commands
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -26,19 +25,12 @@ jobs:
           username: azureuser
           key: ${{ secrets.AZURE_SSH_KEY }}
           port: 22
-          script_stop: true # Stop workflow if any step fails
+          script_stop: true
           script: |
             echo "⚡ Starting Auto-Deployment on Azure..."
-            
-            # Navigate to directory
             cd /home/azureuser/TalentStream/TalentStream
-            
-            # Pull latest changes from GitHub
             git pull origin main
-            
-            # Rebuild and run containers in background
             echo "🐳 Rebuilding and spinning up Docker containers..."
             sudo docker compose down
             sudo docker compose up -d --build
-            
             echo "🎉 TalentStream is successfully deployed and running!"
