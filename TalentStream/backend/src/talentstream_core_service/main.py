@@ -37,11 +37,14 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 # ── CORS: Restricted for Production ───────────────────────────────────────────
-# In production, ONLY allow the frontend origin
+import os
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
 origins = [
-    "http://localhost:5173", # Vite local
-    "http://localhost:3000", # Common production fallback
+    "http://localhost:5173",  # Vite local dev
+    "http://localhost:3000",  # Common fallback
 ]
+if allowed_origins_env:
+    origins.extend([o.strip() for o in allowed_origins_env.split(",") if o.strip()])
 
 app.add_middleware(
     CORSMiddleware,
