@@ -806,7 +806,7 @@ export const RMGOverview: React.FC = () => {
                                         }
                                       }}
                                       title="Complete Allocation"
-                                      className="flex items-center gap-1 px-2 py-1 bg-emerald-500 text-white rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-md shadow-emerald-500/10"
+                                      className="flex items-center gap-1 px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all shadow-none"
                                     >
                                       <Zap size={10} /> Allocate
                                     </button>

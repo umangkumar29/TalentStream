@@ -276,21 +276,11 @@ export const RMGMatches: React.FC = () => {
                     {/* Column 6: Actions */}
                     <div className="w-full lg:w-auto flex items-center justify-between lg:justify-end gap-2 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100 dark:border-white/5 w-full">
                       <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                        {match.candidate_status === 'bench' && !isSelected && (
-                          <button
-                            disabled={actionLoading === match.candidate_id}
-                            onClick={() => handleCandidateStatusUpdate(match.candidate_id, 'earmarked')}
-                            className="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all disabled:opacity-50"
-                          >
-                            Earmark
-                          </button>
-                        )}
-                        
-                        {(isSelected || match.candidate_status === 'earmarked' || match.candidate_status === 'selected_for_allocation') && match.candidate_status !== 'allocated' && (
+                        {match.candidate_status === 'earmarked' && (
                           <button
                             disabled={actionLoading === match.candidate_id}
                             onClick={() => handleCandidateStatusUpdate(match.candidate_id, 'allocated')}
-                            className="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all disabled:opacity-50"
+                            className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all disabled:opacity-50"
                           >
                             <Zap size={8} /> Allocate
                           </button>
