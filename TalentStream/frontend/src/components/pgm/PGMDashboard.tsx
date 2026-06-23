@@ -912,33 +912,46 @@ export const PGMDashboard: React.FC = () => {
                   {/* Scrollable Content Area */}
                   <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar bg-transparent relative z-0">
                     <div className="max-w-[800px] mx-auto font-sans" style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--text-primary)' }}>
-                      {viewJdModal.description.split('\n').map((line, i) => {
-                        const trimmedLine = line.trim();
-                        if (!trimmedLine) return null;
-                        
-                        const sections = ['Role Overview', 'Key Responsibilities', 'Responsibilities', 'Requirements', 'Technical Skills', 'Preferred Skills', 'Benefits', 'Qualifications', 'About the Role', 'Job Description'];
-                        const isHeader = sections.some(s => trimmedLine.toLowerCase() === s.toLowerCase() || trimmedLine.toLowerCase() === s.toLowerCase() + ':');
-                        
-                        if (isHeader) {
-                          return (
-                            <div key={i} className="mt-10 mb-6 first:mt-2">
-                              <h4 className="text-[18px] font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>{trimmedLine.replace(':', '')}</h4>
-                              <div className="h-px w-full mt-3 opacity-20" style={{ backgroundColor: 'var(--text-primary)' }} />
-                            </div>
-                          );
-                        }
-                        
-                        if (trimmedLine.startsWith('-') || trimmedLine.startsWith('•') || trimmedLine.startsWith('*')) {
-                          return (
-                            <div key={i} className="flex gap-4 my-3 pl-2">
-                              <span className="mt-2.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: 'var(--talentstream-primary)' }} />
-                              <span className="flex-1 opacity-90">{trimmedLine.substring(1).trim()}</span>
-                            </div>
-                          );
-                        }
-                        
-                        return <p key={i} className="my-4 opacity-90">{trimmedLine}</p>;
-                      })}
+                      {(() => {
+                        let currentSection = '';
+                        return viewJdModal.description.split('\n').map((line, i) => {
+                          const trimmedLine = line.trim();
+                          if (!trimmedLine) return null;
+                          
+                          const sections = ['Role Overview', 'Key Responsibilities', 'Responsibilities', 'Requirements', 'Technical Skills', 'Required Technical Skills', 'Preferred Skills', 'Benefits', 'Qualifications', 'About the Role', 'Job Description'];
+                          
+                          // Skip redundant title lines since the modal header already shows it
+                          if (trimmedLine.toLowerCase().includes('job title') || trimmedLine.toLowerCase() === 'open role' || (viewJdModal.job?.title && trimmedLine.toLowerCase() === viewJdModal.job.title.toLowerCase())) {
+                            return null;
+                          }
+
+                          const isHeader = sections.some(s => trimmedLine.toLowerCase() === s.toLowerCase() || trimmedLine.toLowerCase() === s.toLowerCase() + ':');
+                          
+                          if (isHeader) {
+                            currentSection = trimmedLine.replace(':', '');
+                            return (
+                              <div key={i} className="mt-10 mb-6 first:mt-2">
+                                <h4 className="text-[18px] font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>{currentSection}</h4>
+                                <div className="h-px w-full mt-3 opacity-20" style={{ backgroundColor: 'var(--text-primary)' }} />
+                              </div>
+                            );
+                          }
+                          
+                          const isBulletSection = currentSection.toLowerCase().includes('responsibilities') || currentSection.toLowerCase().includes('skills') || currentSection.toLowerCase().includes('requirements') || currentSection.toLowerCase().includes('qualifications');
+                          
+                          if (trimmedLine.startsWith('-') || trimmedLine.startsWith('•') || trimmedLine.startsWith('*') || (isBulletSection && trimmedLine.length > 10)) {
+                            const bulletText = trimmedLine.replace(/^[-•*]\s*/, '').trim();
+                            return (
+                              <div key={i} className="flex gap-4 my-3 pl-2">
+                                <span className="mt-2.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: 'var(--talentstream-primary)' }} />
+                                <span className="flex-1 opacity-90">{bulletText}</span>
+                              </div>
+                            );
+                          }
+                          
+                          return <p key={i} className="my-4 opacity-90">{trimmedLine}</p>;
+                        });
+                      })()}
                     </div>
                   </div>
   

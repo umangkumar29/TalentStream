@@ -116,6 +116,9 @@ def list_candidates(
             "resume_url": c.resume_url,
             "has_embedding": c.embedding is not None,
             "created_at": c.created_at.isoformat(),
+            "overall_summary": c.resume_json.get("candidate", {}).get("professional_summary", "") if c.resume_json else "",
+            "project_summary": "\n".join([ach for exp in c.resume_json.get("candidate", {}).get("work_experience", []) for ach in exp.get("key_achievements", [])]) if c.resume_json else "",
+            "role_category": (c.resume_json.get("candidate", {}).get("work_experience", [])[0].get("role", "General") if c.resume_json and c.resume_json.get("candidate", {}).get("work_experience") else "General") if c.resume_json else "General",
         }
         for c in candidates
     ]
