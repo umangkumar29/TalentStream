@@ -161,6 +161,8 @@ export const PGMMatches: React.FC = () => {
    const totalPages = Math.ceil(results.length / rowsPerPage) || 1;
    const paginatedResults = results.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
+   const localFulfilledCount = results.filter(r => r.hiring_decision?.toLowerCase() === 'hired' || r.l2_status === 'cleared').length;
+
    return (
       <div className="absolute inset-0 bg-slate-100 dark:bg-[#0B1220] text-slate-900 dark:text-white font-inter p-4 md:p-6 lg:p-8 flex flex-col overflow-hidden">
          <div className="flex-1 max-w-[1600px] w-full mx-auto bg-white dark:bg-[#111827] rounded-[16px] border border-slate-200 dark:border-white/[0.06] shadow-2xl flex flex-col overflow-hidden">
@@ -181,7 +183,7 @@ export const PGMMatches: React.FC = () => {
                         </h1>
                         {(() => {
                            if (!jobData?.last_activity_at) return null;
-                           const isFulfilled = jobData.status === 'closed' || (jobData.fulfilled_count !== undefined && jobData.num_resources !== undefined && jobData.fulfilled_count >= jobData.num_resources);
+                           const isFulfilled = jobData.status === 'closed' || (jobData.num_resources !== undefined && localFulfilledCount >= jobData.num_resources);
                            if (isFulfilled) return null;
                            
                            const activityDate = getUTCDate(jobData.last_activity_at);
@@ -221,7 +223,14 @@ export const PGMMatches: React.FC = () => {
             <div className="px-6 py-4 border-b border-slate-100 dark:border-white/[0.06] bg-slate-50/50 dark:bg-transparent shrink-0">
                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   {[
-                     { label: 'Total Evaluated', value: results.length, icon: Target, trend: null },
+                     { 
+                        label: 'Positions Filled', 
+                        value: `${localFulfilledCount} / ${jobData?.num_resources || '-'}`, 
+                        icon: Target, 
+                        trend: jobData && jobData.num_resources > 0 && localFulfilledCount >= jobData.num_resources 
+                               ? 'Fulfilled' 
+                               : `${Math.max(0, (jobData?.num_resources || 0) - localFulfilledCount)} Open` 
+                     },
                      { label: 'Avg Match Score', value: `${avgScore}%`, icon: Award, trend: '+5% vs avg' },
                      { label: 'Strong Matches', value: strongMatches, icon: Zap, trend: 'Top tier' },
                      { label: 'Pending Review', value: pending, icon: Shield, trend: null },
@@ -541,7 +550,7 @@ export const PGMMatches: React.FC = () => {
                         const isL1 = c.status === 'shortlisted' && c.l1_status !== 'cleared';
                         const isL2 = c.status === 'shortlisted' && c.l1_status === 'cleared';
 
-                        const isFulfilled = jobData?.status === 'closed' || (jobData?.fulfilled_count !== undefined && jobData?.num_resources !== undefined && jobData?.fulfilled_count >= jobData?.num_resources);
+                        const isFulfilled = jobData?.status === 'closed' || (jobData?.num_resources !== undefined && localFulfilledCount >= jobData.num_resources);
                         const diff = jobData?.last_activity_at ? getUTCDate(jobData.last_activity_at).getTime() + (3 * 24 * 60 * 60 * 1000) - new Date().getTime() : 1;
                         const isLocked = !isFulfilled && diff <= 0;
 
@@ -549,7 +558,7 @@ export const PGMMatches: React.FC = () => {
 
                         return (
                            <>
-                              {isPending && (
+                              {isPending && !isFulfilled && (
                                  <button 
                                     onClick={() => { handleStatusChange(openMenuId, 'shortlisted'); setOpenMenuId(null); }}
                                     className="w-full text-left px-4 py-2 text-[12.5px] font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 flex items-center gap-2.5 transition-colors"
@@ -558,7 +567,7 @@ export const PGMMatches: React.FC = () => {
                                  </button>
                               )}
 
-                              {isL1 && (
+                              {isL1 && !isFulfilled && (
                                  <button 
                                     onClick={async () => { 
                                        await scheduleInterview(openMenuId, 'L1', 'cleared'); 
@@ -572,7 +581,7 @@ export const PGMMatches: React.FC = () => {
                                  </button>
                               )}
 
-                              {isL2 && (
+                              {isL2 && !isFulfilled && (
                                  <button 
                                     onClick={async () => { 
                                        await updateHiringDecision(openMenuId, 'hired'); 
@@ -741,6 +750,8 @@ export const PGMMatches: React.FC = () => {
                         const isL1 = drawerCandidate.status === 'shortlisted' && drawerCandidate.l1_status !== 'cleared';
                         const isL2 = drawerCandidate.status === 'shortlisted' && drawerCandidate.l1_status === 'cleared';
 
+                        const isFulfilled = jobData?.status === 'closed' || (jobData?.num_resources !== undefined && localFulfilledCount >= jobData.num_resources);
+
                         return (
                            <div className="p-6 border-t border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-[#172033] flex gap-3 mt-auto">
                               <button 
@@ -754,7 +765,7 @@ export const PGMMatches: React.FC = () => {
                                  Reject
                               </button>
                               
-                              {isPending && (
+                              {isPending && !isFulfilled && (
                                  <button 
                                     onClick={() => handleStatusChange(drawerCandidate.match_id, 'shortlisted')}
                                     className="flex-[2] px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-xl text-[13px] font-bold transition-all shadow-sm flex items-center justify-center gap-2 border border-transparent"
@@ -763,7 +774,7 @@ export const PGMMatches: React.FC = () => {
                                  </button>
                               )}
 
-                              {isL1 && (
+                              {isL1 && !isFulfilled && (
                                  <button 
                                     onClick={async () => { 
                                        await scheduleInterview(drawerCandidate.match_id, 'L1', 'cleared'); 
@@ -777,7 +788,7 @@ export const PGMMatches: React.FC = () => {
                                  </button>
                               )}
 
-                              {isL2 && (
+                              {isL2 && !isFulfilled && (
                                  <button 
                                     onClick={async () => { 
                                        await updateHiringDecision(drawerCandidate.match_id, 'hired'); 

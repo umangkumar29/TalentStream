@@ -23,7 +23,10 @@ import {
   ChevronRight,
   Calendar,
   X,
-  Lock
+  Lock,
+  Cpu,
+  Layers,
+  Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -131,6 +134,7 @@ export const PGMDashboard: React.FC = () => {
   const [editModal, setEditModal] = useState<{isOpen: boolean, job: Job | null}>({isOpen: false, job: null});
   const [viewJdModal, setViewJdModal] = useState<{isOpen: boolean, job: Job | null, description: string}>({isOpen: false, job: null, description: ''});
   const [lockedModal, setLockedModal] = useState<{isOpen: boolean, jobId: string}>({isOpen: false, jobId: ''});
+  const [pipelineJobId, setPipelineJobId] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   
   const { x, y, strategy, refs, isPositioned } = useFloating({
@@ -616,16 +620,16 @@ export const PGMDashboard: React.FC = () => {
                             Fulfilled
                          </button>
                      ) : matchingJobs[job.id] || job.matching_status === 'in_progress' || job.matching_status === 'processing' || job.matching_status === 'running' ? (
-                         <div className="flex flex-col items-end gap-1 w-full max-w-[100px]">
-                            <div className="flex justify-between w-full text-[9px] font-medium text-slate-500">
-                               <span className="flex items-center gap-1">
-                                 <Loader2 className="w-2.5 h-2.5 animate-spin text-indigo-400" /> Eval...
+                         <button onClick={(e) => { e.stopPropagation(); setPipelineJobId(job.id); }} className="flex flex-col items-end gap-1.5 w-full max-w-[110px] cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 p-1.5 -mr-1.5 rounded-lg transition-colors group">
+                            <div className="flex justify-between w-full text-[10px] font-bold text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase tracking-wider">
+                               <span className="flex items-center gap-1.5">
+                                 <Loader2 className="w-3 h-3 animate-spin text-indigo-400" /> Pipeline...
                                </span>
                             </div>
-                            <div className="w-full h-1 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                            <div className="w-full h-1.5 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
                                <motion.div className="h-full bg-indigo-500 rounded-full" initial={{ width: 0 }} animate={{ width: matchingJobs[job.id]?.total_expected ? `${(matchingJobs[job.id].total_processed / matchingJobs[job.id].total_expected!) * 100}%` : '15%' }} transition={{ duration: 0.6 }} />
                             </div>
-                         </div>
+                         </button>
                        ) : job.match_count && job.match_count > 0 ? (
                           <button disabled={isLocked} onClick={(e) => { e.stopPropagation(); navigate(`/pgm/matches?jobId=${job.id}`); }} className={`px-2.5 py-1 rounded text-[10px] font-medium transition-colors border ${isLocked ? 'border-slate-200 dark:border-white/10 text-slate-300 dark:text-white/20 cursor-not-allowed' : 'border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'}`}>
                              View Matches
@@ -1016,6 +1020,126 @@ export const PGMDashboard: React.FC = () => {
           )}
         </AnimatePresence>
       </FloatingPortal>
+      {/* AI Pipeline Sliding Panel */}
+      {createPortal(
+        <AnimatePresence>
+          {pipelineJobId && (
+            <div className="fixed inset-0 z-[120] overflow-hidden pointer-events-none flex justify-end">
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }} 
+                className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm pointer-events-auto"
+                onClick={() => setPipelineJobId(null)}
+              />
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="relative h-full w-[400px] bg-white dark:bg-[#0f141f] shadow-2xl pointer-events-auto flex flex-col z-10 border-l border-slate-200 dark:border-white/10"
+              >
+                {(() => {
+                  const job = jobs.find(j => j.id === pipelineJobId);
+                  const isCompleted = job?.matching_status === 'completed';
+                  const progressData = matchingJobs[pipelineJobId];
+                  const phase1Complete = isCompleted || (progressData && (progressData.total_processed > 0 || progressData.total_expected !== null));
+                  const phase2Complete = isCompleted || (progressData && progressData.total_expected !== null && progressData.total_processed === progressData.total_expected && progressData.total_expected > 0);
+                  
+                  return (
+                    <>
+                      <div className="p-6 border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.02]">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-indigo-500" /> AI Match Pipeline
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{job?.title || 'Job'}</p>
+                          </div>
+                          <button onClick={() => setPipelineJobId(null)} className="p-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="p-6 flex-1 overflow-y-auto">
+                        <div className="relative space-y-8">
+                          {/* Phase 1: Vector Search */}
+                          <div className="relative flex gap-4">
+                            <div className="flex flex-col items-center">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 z-10 bg-white dark:bg-[#0f141f] transition-colors ${phase1Complete ? 'border-emerald-500 text-emerald-500' : 'border-indigo-500 text-indigo-500'}`}>
+                                {phase1Complete ? <CheckCircle2 className="w-4 h-4" /> : <Loader2 className="w-4 h-4 animate-spin" />}
+                              </div>
+                              <div className={`w-0.5 h-full absolute top-8 -bottom-8 ${phase1Complete ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-white/10'}`} />
+                            </div>
+                            <div className="pt-1.5 pb-4">
+                              <h4 className={`text-sm font-bold ${phase1Complete ? 'text-slate-900 dark:text-white' : 'text-indigo-600 dark:text-indigo-400'}`}>Semantic Pre-filtering</h4>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-3">Scanning entire global talent pool using dense vector embeddings.</p>
+                              <div className={`px-2.5 py-1 rounded-md text-[10px] font-bold inline-flex items-center gap-1.5 uppercase tracking-wide border ${phase1Complete ? 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' : 'bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20'}`}>
+                                <Cpu className="w-3 h-3" /> {phase1Complete ? (progressData?.total_expected ? `${progressData.total_expected} Candidates Shortlisted` : 'Candidates Shortlisted') : 'Calculating Cosine Distances...'}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Phase 2: Cross-Encoder */}
+                          <div className="relative flex gap-4">
+                            <div className="flex flex-col items-center">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 z-10 bg-white dark:bg-[#0f141f] transition-colors ${phase2Complete ? 'border-emerald-500 text-emerald-500' : phase1Complete ? 'border-indigo-500 text-indigo-500' : 'border-slate-200 text-slate-400 dark:border-white/10 dark:text-white/20'}`}>
+                                {phase2Complete ? <CheckCircle2 className="w-4 h-4" /> : phase1Complete ? <Loader2 className="w-4 h-4 animate-spin" /> : <Layers className="w-4 h-4" />}
+                              </div>
+                              <div className={`w-0.5 h-full absolute top-8 -bottom-8 ${phase2Complete ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-white/10'}`} />
+                            </div>
+                            <div className="pt-1.5 pb-4 w-full pr-4">
+                              <h4 className={`text-sm font-bold ${phase2Complete ? 'text-slate-900 dark:text-white' : phase1Complete ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-white/40'}`}>Deep Neural Re-ranking</h4>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-3">Passing shortlisted candidates through BGE-M3 Cross-Encoder for deep contextual skill analysis.</p>
+                              {phase1Complete && !phase2Complete && (
+                                <div className="space-y-2">
+                                  <div className="flex justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                                    <span>Processing Batches</span>
+                                  </div>
+                                  <div className="w-full h-1.5 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                                    <motion.div className="h-full bg-indigo-500 rounded-full" initial={{ width: 0 }} animate={{ width: progressData?.total_expected ? `${(progressData.total_processed / progressData.total_expected) * 100}%` : '15%' }} transition={{ duration: 0.6 }} />
+                                  </div>
+                                </div>
+                              )}
+                              {phase2Complete && (
+                                <div className="px-2.5 py-1 rounded-md text-[10px] font-bold inline-flex items-center gap-1.5 uppercase tracking-wide border bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
+                                  Scores Calibrated
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Phase 3: Final LLM Eval */}
+                          <div className="relative flex gap-4">
+                            <div className="flex flex-col items-center">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 z-10 bg-white dark:bg-[#0f141f] transition-colors ${isCompleted ? 'border-emerald-500 text-emerald-500' : phase2Complete ? 'border-indigo-500 text-indigo-500' : 'border-slate-200 text-slate-400 dark:border-white/10 dark:text-white/20'}`}>
+                                {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : phase2Complete ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                              </div>
+                            </div>
+                            <div className="pt-1.5 pb-4">
+                              <h4 className={`text-sm font-bold ${isCompleted ? 'text-slate-900 dark:text-white' : phase2Complete ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-white/40'}`}>Finalizing Insights</h4>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-3">Generating final match explanations and technical fit summaries for the top candidates.</p>
+                              {isCompleted && (
+                                <button onClick={() => { setPipelineJobId(null); navigate(`/pgm/matches?jobId=${job.id}`); }} className="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-sm transition-all shadow-indigo-500/20 shadow-[0_0_15px_rgba(79,70,229,0.2)]">
+                                  View Top Matches
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
     </div>
   );
 };
