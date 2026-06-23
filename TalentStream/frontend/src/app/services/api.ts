@@ -300,4 +300,24 @@ export const deleteUser = (userId: string): Promise<any> =>
 export const fetchAuditLogs = (): Promise<any[]> =>
   api.get('/admin/audit-logs').then((r) => r.data);
 
+// ── Notification Services ─────────────────────────────────────────────────────
+export interface AppNotification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  metadata_json: string | null;
+  is_read: boolean;
+  created_at: string | null;
+}
+
+export const fetchNotifications = (unreadOnly?: boolean, role?: string): Promise<AppNotification[]> =>
+  api.get('/notifications', { params: { unread_only: unreadOnly || false, role: role || undefined } }).then((r) => r.data);
+
+export const markNotificationRead = (id: string): Promise<any> =>
+  api.patch(`/notifications/${id}/read`).then((r) => r.data);
+
+export const markAllNotificationsRead = (role?: string): Promise<any> =>
+  api.patch('/notifications/read-all', null, { params: { role: role || undefined } }).then((r) => r.data);
+
 export default api;

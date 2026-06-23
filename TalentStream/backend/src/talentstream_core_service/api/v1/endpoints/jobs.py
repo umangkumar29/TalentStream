@@ -485,6 +485,24 @@ def update_hiring_decision(
         if fulfilled_count >= job.number_of_openings:
             if job.status != JobStatus.closed:
                 job.status = JobStatus.closed
+                
+                # ── Create RMG notification on job fulfillment ────────────────
+                import json
+                from talentstream_core_service.db.models.notification import Notification
+                notification = Notification(
+                    target_role="RMG",
+                    type="job_fulfilled",
+                    title="Position Fulfilled",
+                    message=f'"{job.title}" position has been fulfilled by the Project Manager. You can now proceed to allocate the earmarked candidate(s).',
+                    metadata_json=json.dumps({
+                        "job_id": str(job.id),
+                        "job_title": job.title,
+                        "candidate_name": candidate.name if candidate else "Unknown",
+                    }),
+                )
+                db.add(notification)
+                # ──────────────────────────────────────────────────────────────
+                
                 repo.update()
         else:
             if job.status == JobStatus.closed:

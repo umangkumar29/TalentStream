@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 import time
 
-from talentstream_core_service.api.v1.endpoints import candidates, jobs, auth, analytics, projects
+from talentstream_core_service.api.v1.endpoints import candidates, jobs, auth, analytics, projects, notifications
 from talentstream_core_service.db.database import engine, Base
 from talentstream_core_service.configs.config import settings
 from talentstream_core_service.observability.logger import logger
@@ -60,6 +60,7 @@ app.include_router(candidates.router, prefix="/api/v1", tags=["Candidates"])
 app.include_router(jobs.router, prefix="/api/v1", tags=["Jobs"])
 app.include_router(analytics.router, prefix="/api/v1", tags=["Analytics"])
 app.include_router(projects.router, prefix="/api/v1", tags=["Projects"])
+app.include_router(notifications.router, prefix="/api/v1", tags=["Notifications"])
 
 @app.get("/")
 def health_check():
