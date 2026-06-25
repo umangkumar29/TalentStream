@@ -399,7 +399,7 @@ export const RMGOverview: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4 pb-10">
+    <div className="rmg-dashboard space-y-4 pb-10">
       <input
         type="file"
         id="rmg-resume-upload"
@@ -513,7 +513,7 @@ export const RMGOverview: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <h2 className="font-semibold text-sm text-slate-900 dark:text-white">Talent Pool</h2>
                   <span className="bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-white/60 text-[10px] px-2 py-0.5 rounded-full font-bold leading-tight uppercase">
-                    {analytics?.total_talent || candidates.length} TOTAL
+                    {analytics?.total_talent || candidates.length} Total
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -554,7 +554,7 @@ export const RMGOverview: React.FC = () => {
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 5 }}
-                          className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#151b28] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-50 p-4 normal-case text-xs text-slate-700 dark:text-slate-200"
+                          className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#151b28] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl z-50 p-4 text-xs text-slate-700 dark:text-slate-200"
                         >
                           <div className="space-y-4 relative">
                             <button
@@ -747,7 +747,7 @@ export const RMGOverview: React.FC = () => {
                                 <span className="font-mono text-[11px] text-slate-700 dark:text-slate-300 font-bold tracking-widest">{cand.employee_id || '---'}</span>
                               </td>
                               <td className="px-6 py-2.5">
-                                <span className="text-[11px] text-slate-700 dark:text-slate-300 font-bold truncate tracking-tight block max-w-[160px]">{cand.email || '---'}</span>
+                                <span className="text-[11px] text-slate-700 dark:text-slate-300 font-bold truncate tracking-tight block max-w-[160px] lowercase">{cand.email || '---'}</span>
                               </td>
                               <td className="px-6 py-2.5">
                                 <span className={`text-xs font-bold ${cand.experience_years == null ? 'text-slate-400 dark:text-slate-600' :
@@ -946,7 +946,7 @@ export const RMGOverview: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <h2 className="font-semibold text-sm text-slate-900 dark:text-white">Active Mandates</h2>
                   <span className="bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-white/60 text-[10px] px-2 py-0.5 rounded-full font-bold leading-tight uppercase">
-                    {allJobDemands.length} TOTAL
+                    {allJobDemands.length} Total
                   </span>
                 </div>
 

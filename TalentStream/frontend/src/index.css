@@ -217,3 +217,38 @@
   border-radius: 9999px;
   background-color: color-mix(in srgb, var(--talentstream-on-surface) 15%, transparent);
 }
+
+/* ─── RMG Dashboard: Force All UI Text to Title Case (Capitalize) ─── */
+/* Applied to the RMG overview and matches pages */
+.rmg-dashboard {
+  text-transform: capitalize;
+}
+
+/* Override Tailwind's .uppercase utility inside the dashboard to also use capitalize */
+.rmg-dashboard .uppercase,
+.rmg-dashboard [class*="tracking-widest"],
+.rmg-dashboard [class*="tracking-wider"],
+.rmg-dashboard [class*="tracking-wide"] {
+  text-transform: capitalize;
+}
+
+/* Exclude monospace fields (email, phone, IDs) and pre-formatted text */
+.rmg-dashboard .font-mono,
+.rmg-dashboard pre,
+.rmg-dashboard input,
+.rmg-dashboard textarea,
+.rmg-dashboard select {
+  text-transform: none;
+}
+
+/* Placeholders still capitalize */
+.rmg-dashboard input::placeholder,
+.rmg-dashboard textarea::placeholder {
+  text-transform: capitalize;
+}
+
+/* Keep normal-case for any explicitly opted-out elements */
+.rmg-dashboard .normal-case,
+.rmg-dashboard .lowercase {
+  text-transform: none;
+}

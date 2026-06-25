@@ -103,7 +103,7 @@ export const RMGMatches: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-[1400px] mx-auto pb-8">
+    <div className="rmg-dashboard space-y-6 max-w-[1400px] mx-auto pb-8">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-4 px-1">
         <button
